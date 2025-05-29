@@ -112,7 +112,7 @@ export default function Editor() {
           {activePage?.code.length ?? 0} chars
         </span>
         <span>
-          Assignment Editor &mdash; Powered by Vite, React, Framer Motion, shadcn, Tailwind, & react-icons
+          Assignment Editor &mdash; By Fab-c
         </span>
       </div>
     </div>
