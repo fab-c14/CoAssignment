@@ -12,7 +12,7 @@ const Navbar = () => {
       <ul className='flex items-center gap-5 poppins-medium'>
         <li className='hover:text-gray-700 transition-all'><Link to={'/'}>Home</Link></li>
         <li className='hover:text-gray-700 transition-all'><Link to={'/'}>About Us</Link></li>
-        <li className='hover:text-gray-700 transition-all'><Link to={'/'}>Generate</Link></li>
+        <li className='hover:text-gray-700 transition-all'><Link to={'/editor'}>Generate</Link></li>
         <li className='hover:text-gray-700 transition-all'><Link to={'/'}>Team</Link></li>
         <li className='hover:text-gray-700 transition-all'><Link to={'/'}>Services</Link></li>
       </ul>
