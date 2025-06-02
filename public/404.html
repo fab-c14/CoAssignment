@@ -1,0 +1,6 @@
+<script>
+  // SPA redirect for gh-pages:
+  var l = window.location;
+  var base = l.protocol + '//' + l.host + l.pathname.split('/').slice(0, 3).join('/');
+  window.location.replace(base + '/#' + l.pathname + l.search + l.hash);
+</script>

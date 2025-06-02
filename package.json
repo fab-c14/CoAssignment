@@ -2,13 +2,16 @@
   "name": "coassignment",
   "private": true,
   "version": "0.0.0",
-  "homepage":"."
+  "homepage":".",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+
   },
   "dependencies": {
     "@radix-ui/react-menubar": "^1.1.15",
