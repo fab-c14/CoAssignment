@@ -2,7 +2,7 @@
   "name": "coassignment",
   "private": true,
   "version": "0.0.0",
-  "homepage":".",
+  "homepage": "https://fab-c14.github.io/CoAssignment",
   "type": "module",
   "scripts": {
     "dev": "vite",
