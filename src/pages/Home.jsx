@@ -1,9 +1,9 @@
-import Hero from '../component/Hero'
+import { AppInfoPanel } from '../components/AppInfoPanel'
 
 const Home = () => {
   return (
     <div className='home min-h-screen'>
-        <Hero/>
+        <AppInfoPanel />
     </div>
   )
 }
