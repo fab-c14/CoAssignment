@@ -1,7 +1,7 @@
-import './App.css';
+import './App1.css';
 import Home from "./pages/Home.jsx"
 import {BrowserRouter,Routes,Route} from 'react-router-dom'
-import AssignmentGenerator from './pages/AssignmentGenerator.jsx';
+import AssignmentGenerator from './pages/AssignmentGenerator';
 function App() {
 
   return (
