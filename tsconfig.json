@@ -9,9 +9,5 @@
     "jsx": "react-jsx",
     "checkJs": false
   },
-  "include": ["src"],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "include": ["src"]
 }

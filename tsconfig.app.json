@@ -1,12 +1,4 @@
 {
-//   {
-//   "compilerOptions": {
-//     // ...
-  
-//     // ...
-//   }
-// }
-
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
@@ -30,7 +22,8 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-      "baseUrl": ".",
+
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
