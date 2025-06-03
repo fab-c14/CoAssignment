@@ -1,18 +1,17 @@
 import './App1.css';
 import Home from "./pages/Home.jsx"
-import {BrowserRouter,Routes,Route} from 'react-router-dom'
+import {HashRouter,Routes,Route} from 'react-router-dom'
 import AssignmentGenerator from './pages/AssignmentGenerator';
 function App() {
 
   return (
     <div className='app'>
-    <BrowserRouter>
-     {/* <Navbar/> */}
+    <HashRouter>
     <Routes>
       <Route element={<Home/>} path='/'/>
       <Route element={<AssignmentGenerator/>} path='/editor' />
     </Routes>
-    </BrowserRouter>
+    </HashRouter>
     </div>
   )
 }

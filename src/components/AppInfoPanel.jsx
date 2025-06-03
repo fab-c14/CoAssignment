@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Github, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function AppInfoPanel() {
   return (
@@ -62,12 +63,12 @@ export function AppInfoPanel() {
             size="lg"
             className="gap-2 text-base"
           >
-            <a
-              href="/editor"
+            <Link
+              to="/editor"
               className="flex items-center"
             >
               Go to Assignment Tool <ArrowRight className="w-4 h-4 ml-1" />
-            </a>
+            </Link>
           </Button>
         </div>
         <div className="pt-4 text-xs text-muted-foreground text-center">
