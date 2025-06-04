@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { generateAssignmentPDF } from "@/components/AssignmentPDF";
 
 export default function AssignmentGenerator() {
+  
   const [userName, setUserName] = useState("");
   const [rollNo, setRollNo] = useState("");
   const [pdfTitle, setPdfTitle] = useState("");
@@ -22,7 +23,7 @@ export default function AssignmentGenerator() {
     }
   };
 
-  const handleDownloadPDF = () => {
+ const handleDownloadPDF = () => {
     generateAssignmentPDF({
       pdfTitle,
       userName,

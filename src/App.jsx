@@ -5,7 +5,7 @@ import AssignmentGenerator from './pages/AssignmentGenerator';
 function App() {
 
   return (
-    <div className='app'>
+    <div className='app poppins-regular bg-gradient-to-br from-gray-900 to-indigo-950'>
     <HashRouter>
     <Routes>
       <Route element={<Home/>} path='/'/>

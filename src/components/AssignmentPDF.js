@@ -1,123 +1,108 @@
 import jsPDF from "jspdf";
 
-// Helper to print lines with pagination and optional background highlight for each line (code/output)
-function printLinesWithPagination(doc, lines, x, y, lineHeight, margin, pageHeight, font, fontSize, fillColor) {
-  doc.setFont(font, "normal");
-  doc.setFontSize(fontSize);
+// Draws dark code block like IDE
+function printDarkCodeBlock(doc, lines, x, y, lineHeight, pageWidth, pageHeight, margin) {
+  const blockHeight = lines.length * lineHeight + 20;
 
-  for (let i = 0; i < lines.length; i++) {
-    if (y > pageHeight - margin) {
+  if (y + blockHeight > pageHeight - margin) {
+    doc.addPage();
+    y = margin;
+  }
+
+  doc.setFillColor(34, 34, 34); // dark background
+  doc.roundedRect(x - 10, y - 10, pageWidth - x * 2 + 20, blockHeight, 6, 6, "F");
+
+  doc.setTextColor(240, 240, 240); // light text
+  doc.setFont("courier", "normal");
+  doc.setFontSize(11);
+
+  lines.forEach((line, i) => {
+    doc.text(line, x, y + i * lineHeight);
+  });
+
+  return y + lines.length * lineHeight + 20;
+}
+
+export function generateAssignmentPDF({ pdfTitle, userName, rollNo, entries }) {
+  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+
+  const margin = 50;
+  const lineHeight = 16;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  let y = 0;
+
+  // Banner Header
+  const headerHeight = 100;
+  doc.setFillColor(37, 99, 235); // Blue banner
+  doc.rect(0, 0, pageWidth, headerHeight, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(26);
+  doc.text(pdfTitle || "Assignment Title", margin, 60);
+
+  doc.setFontSize(13);
+  const nameLine = `Name: ${userName || "_____"}`;
+  const rollLine = `Roll No: ${rollNo || "_____"}`;
+  doc.text(nameLine, pageWidth - margin - doc.getTextWidth(nameLine), 45);
+  doc.text(rollLine, pageWidth - margin - doc.getTextWidth(rollLine), 65);
+
+  y = headerHeight + 20;
+
+  entries.forEach((entry, idx) => {
+    // Question Block
+    const questionLines = doc.splitTextToSize(`Q${idx + 1}: ${entry.question}`, pageWidth - margin * 2);
+    const questionHeight = questionLines.length * lineHeight + 20;
+
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(margin - 5, y - 5, pageWidth - margin * 2 + 10, questionHeight, 8, 8, "F");
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(17, 24, 39);
+    doc.text(questionLines, margin + 5, y + lineHeight - 2);
+
+    y += questionHeight + 10;
+
+    // Code Block
+    const codeLines = doc.splitTextToSize(entry.code, pageWidth - margin * 2 - 20);
+    y = printDarkCodeBlock(doc, codeLines, margin + 10, y, lineHeight, pageWidth, pageHeight, margin);
+
+    // Output Heading
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(22, 163, 74);
+    doc.text("Output:", margin + 10, y);
+
+    y += 8;
+
+    // Output Box
+    const outputLines = doc.splitTextToSize(entry.output, pageWidth - margin * 2 - 40);
+    const outputHeight = outputLines.length * lineHeight + 20;
+
+    if (y + outputHeight > pageHeight - margin) {
       doc.addPage();
       y = margin;
     }
-    if (fillColor) {
-      // Always use the same background for all lines
-      doc.setFillColor(...fillColor);
-      doc.rect(x - 4, y - lineHeight + 4, doc.internal.pageSize.getWidth() - x * 2 + 8, lineHeight, "F");
-    }
-    doc.text(lines[i], x, y);
-    y += lineHeight;
-  }
-  return y;
-}
 
-export function generateAssignmentPDF({
-  pdfTitle,
-  userName,
-  rollNo,
-  entries,
-}) {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "pt",
-    format: "a4"
-  });
+    doc.setFillColor(240, 253, 244); // light green
+    doc.setDrawColor(34, 197, 94);
+    doc.roundedRect(margin + 10, y, pageWidth - margin * 2 - 20, outputHeight, 6, 6, "FD");
 
-  const margin = 40;
-  const lineHeight = 18;
-  let y = margin + 10;
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  // Header
-  doc.setFillColor(37, 99, 235);
-  doc.rect(0, 0, pageWidth, 60, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(28);
-  doc.setFont("helvetica", "bold");
-  // Center the title
-  const titleText = pdfTitle || "Assignment Title";
-  const titleWidth = doc.getTextWidth(titleText);
-  doc.text(titleText, pageWidth / 2 - titleWidth / 2, 42);
-
-  // Name and Roll No (larger, under title, centered)
-  doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(255, 255, 255);
-  const nameAndRoll = `Name: ${userName || "___"}    Roll No: ${rollNo || "___"}`;
-  const nameAndRollWidth = doc.getTextWidth(nameAndRoll);
-  doc.text(nameAndRoll, pageWidth / 2 - nameAndRollWidth / 2, 62);
-
-  y = 80;
-
-  entries.forEach((entry, idx) => {
-    // Question
-    doc.setFillColor(243, 244, 246);
-    doc.roundedRect(margin - 10, y - 8, pageWidth - margin * 2 + 20, 28, 5, 5, "F");
-    doc.setTextColor(37, 99, 235);
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text(`Q${idx + 1}: ${entry.question}`, margin, y + 10);
-
-    y += 32;
-
-    // Code (always gray background for all lines)
+    doc.setTextColor(20, 30, 40);
     doc.setFont("courier", "normal");
     doc.setFontSize(11);
-    doc.setTextColor(30, 41, 59);
-    const codeLines = doc.splitTextToSize(entry.code, pageWidth - margin * 2 - 20);
-    y = printLinesWithPagination(
-      doc,
-      codeLines,
-      margin + 10,
-      y + 12,
-      lineHeight,
-      margin,
-      pageHeight,
-      "courier",
-      11,
-      [240, 240, 240] // Light gray for ALL code lines
-    );
-    y += 10;
+    outputLines.forEach((line, i) => {
+      doc.text(line, margin + 20, y + lineHeight + i * lineHeight);
+    });
 
-    // Output
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(21, 128, 61);
-    doc.setFontSize(12);
-    doc.text("Output:", margin + 10, y + 10);
+    y += outputHeight + 30;
 
-    doc.setFont("courier", "normal");
-    doc.setFontSize(11);
-    doc.setTextColor(30, 41, 59);
-    const outputLines = doc.splitTextToSize(entry.output, pageWidth - margin * 2 - 60);
-    y = printLinesWithPagination(
-      doc,
-      outputLines,
-      margin + 70,
-      y + 14,
-      lineHeight,
-      margin,
-      pageHeight,
-      "courier",
-      11,
-      [236, 253, 245] // Greenish for ALL output lines
-    );
-    y += 20;
-
-    // If not enough space for next block, next page
-    if (y > pageHeight - 80) {
+    // New page if needed
+    if (y > pageHeight - 100) {
       doc.addPage();
-      y = margin + 10;
+      y = margin;
     }
   });
 
