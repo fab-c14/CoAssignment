@@ -62,7 +62,7 @@ const CrownButton = () => {
         <AnimatePresence>
           {expanded && (
             <motion.div
-              className="flex" // Added flex container for both buttons
+              className="flex" 
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
