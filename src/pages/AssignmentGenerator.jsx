@@ -34,21 +34,10 @@ export default function AssignmentGenerator() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 py-12 px-4 md:px-8 lg:px-16">
       <div className="max-w-5xl mx-auto space-y-12">
-        {/* Header */}
-        <div className="text-center">
-       <h1
-  className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-[#F95738] via-[#ff6ec4] to-[#7873f5] 
-             tracking-wider animate-fade-in poppins-medium drop-shadow-[0_5px_10px_rgba(249,87,56,0.5)]"
->
-  Assignment PDF Generator
-</h1>
-          <p className="mt-2 text-gray-500 text-lg">
-            Enter your assignment content and instantly generate a polished PDF.
-          </p>
-        </div>
+       
 
         {/* Form Section */}
-        <section className="bg-white border border-gray-200 shadow-lg rounded-2xl p-8 transition-all space-y-6">
+        <section className="bg-white border border-gray-200 shadow-lg rounded-2xl  transition-all space-y-6">
           <AssignmentForm
             userName={userName}
             setUserName={setUserName}
@@ -67,7 +56,7 @@ export default function AssignmentGenerator() {
         </section>
 
         {/* Preview Section */}
-        <section className="bg-white border border-gray-200 shadow-xl rounded-2xl p-8 space-y-6">
+        <section className="bg-white border border-gray-200 shadow-xl rounded-2xl p-3 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-gray-800">
               📄 Live Preview
@@ -77,7 +66,7 @@ export default function AssignmentGenerator() {
             </span>
           </div>
 
-          <div className="overflow-y-auto max-h-[450px] border rounded-lg bg-gray-50 p-4 text-sm text-gray-700">
+          <div className="overflow-y-auto max-h-[450px] border rounded-lg bg-gray-50  text-sm text-gray-700">
             <AssignmentPreview
               pdfTitle={pdfTitle}
               userName={userName}

@@ -56,7 +56,7 @@ export const AssignmentForm = ({
   const isFormValid = question && code && output;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-gradient-to-br  from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
       {/* Toast notification for AI feature */}
       <AnimatePresence>
         {showToast && (

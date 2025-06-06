@@ -264,11 +264,11 @@ export function AssignmentPreview({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.8 }}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 ">
                   <div className="bg-indigo-500/10 p-2 rounded-lg">
                     <FiArrowRight className="text-indigo-400" />
                   </div>
-                  <div>
+                  <div className=''>
                     <h3 className="font-medium text-gray-200 mb-1 text-sm sm:text-base">Preview Tip</h3>
                     <p className="text-gray-400 text-xs sm:text-sm">
                       Review your assignment before exporting. Each question is displayed with code and output for clarity.
@@ -320,7 +320,7 @@ export function AssignmentPreview({
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.8 }}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3  md:hidden">
           <div className="bg-indigo-500/10 p-2 rounded-lg">
             <FiArrowRight className="text-indigo-400" />
           </div>
