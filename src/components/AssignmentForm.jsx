@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiHash, FiBook, FiEdit, FiCode, FiTerminal, FiPlusCircle, FiArrowRight } from 'react-icons/fi';
+import { 
+  FiUser, 
+  FiHash, 
+  FiBook, 
+  FiEdit, 
+  FiCode, 
+  FiTerminal, 
+  FiPlusCircle, 
+  FiArrowRight,
+  FiZap  // Added AI icon
+} from 'react-icons/fi';
 
 export const AssignmentForm = ({
   userName,
@@ -25,6 +35,9 @@ export const AssignmentForm = ({
     code: false,
     output: false
   });
+  
+  // Added state for toast notification
+  const [showToast, setShowToast] = useState(false);
 
   const handleFocus = (field) => {
     setIsFocused(prev => ({ ...prev, [field]: true }));
@@ -34,10 +47,33 @@ export const AssignmentForm = ({
     setIsFocused(prev => ({ ...prev, [field]: false }));
   };
 
+  // Added function to show AI toast
+  const handleAIClick = () => {
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000); // Auto-hide after 3 seconds
+  };
+
   const isFormValid = question && code && output;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
+      {/* Toast notification for AI feature */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-4 py-3 rounded-lg shadow-lg z-50"
+          >
+            <div className="flex items-center gap-2">
+              <FiZap className="text-yellow-300" />
+              <span>Solution with AI will be available in the upcoming update!</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
         className="absolute top-10 left-5 w-40 h-40 sm:top-20 sm:left-10 sm:w-64 sm:h-64 rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-600/10 blur-3xl"
         animate={{
@@ -264,6 +300,14 @@ export const AssignmentForm = ({
                     onBlur={() => handleBlur('code')}
                   />
                 </div>
+                {/* Added AI button here */}
+                <button 
+                  onClick={handleAIClick}
+                  className="absolute top-4 right-4 flex items-center gap-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-lg text-xs hover:opacity-90 transition-opacity"
+                >
+                  <FiZap className="text-yellow-200" />
+                  <span>AI</span>
+                </button>
                 <div className="text-xs text-gray-500 mt-2 flex justify-between">
                   <span>Use proper indentation for readability</span>
                   <span>{code.split('\n').length} lines</span>
