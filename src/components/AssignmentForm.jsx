@@ -104,7 +104,7 @@ export const AssignmentForm = ({
   const isFormValid = question && code && output;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center sm:p-4 font-sans">
       {toast.show && (
         <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 ${
           toast.type === 'error' 
@@ -227,13 +227,6 @@ export const AssignmentForm = ({
               </div>
             </div>
             <div className="mb-6">
-              <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
-                isFocused.question || question 
-                  ? 'text-purple-400 opacity-100 z-10' 
-                  : 'text-gray-500 opacity-0 top-3'
-              }`}>
-                Question / Problem Statement
-              </div>
               <div className={`relative border rounded-xl p-4 transition-all ${
                 isFocused.question 
                   ? 'border-purple-400 shadow-[0_0_0_3px_rgba(192,132,252,0.1)]' 
@@ -256,13 +249,6 @@ export const AssignmentForm = ({
               </div>
             </div>
             <div className="mb-6">
-              <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
-                isFocused.code || code 
-                  ? 'text-blue-400 opacity-100 z-10' 
-                  : 'text-gray-500 opacity-0 top-3'
-              }`}>
-                Code Solution
-              </div>
               <div className={`relative border rounded-xl p-4 transition-all ${
                 isFocused.code 
                   ? 'border-blue-400 shadow-[0_0_0_3px_rgba(59,130,246,0.1)]' 
@@ -304,13 +290,6 @@ export const AssignmentForm = ({
             </div>
       
             <div className="mb-8">
-              <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
-                isFocused.output || output 
-                  ? 'text-green-400 opacity-100 z-10' 
-                  : 'text-gray-500 opacity-0 top-3'
-              }`}>
-                Expected Output
-              </div>
               <div className={`relative border rounded-xl p-4 transition-all ${
                 isFocused.output 
                   ? 'border-green-400 shadow-[0_0_0_3px_rgba(52,211,153,0.1)]' 
@@ -338,7 +317,7 @@ export const AssignmentForm = ({
                 <div className="bg-indigo-500/10 p-2 rounded-lg">
                   <FiArrowRight className="text-indigo-400" />
                 </div>
-                <div>
+            <div>
                   <h3 className="font-medium text-gray-200 mb-1">Pro Tip</h3>
                   <p className="text-gray-400 text-sm">
                     Fill all fields to enable the "Add to Assignment" button. You can add multiple entries to create a complete assignment.
@@ -395,19 +374,7 @@ export const AssignmentForm = ({
         </div>
       </div>
     
-      <div className="hidden md:flex absolute bottom-6 right-6 bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-xl p-4 max-w-xs">
-        <div className="flex items-start gap-3">
-          <div className="bg-indigo-500/10 p-2 rounded-lg">
-            <FiArrowRight className="text-indigo-400" />
-          </div>
-          <div>
-            <h3 className="font-medium text-gray-200 mb-1">Pro Tip</h3>
-            <p className="text-gray-400 text-sm">
-              Fill all fields to enable the "Add to Assignment" button. You can add multiple entries to create a complete assignment.
-            </p>
-          </div>
-        </div>
-      </div>
+    
     </div>
   );
 };

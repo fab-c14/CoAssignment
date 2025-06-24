@@ -3,15 +3,15 @@ import { Link } from "react-router-dom";
 
 export const AppInfoPanel = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex flex-col items-center justify-center p-1 sm:p-6 font-sans">
 
 
-      <div className="w-full max-w-4xl z-10">
+      <div className="w-full sm:max-w-4xl z-10">
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden">
   
           <div className="relative p-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500" />
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 relative py-6 px-4 sm:px-8">
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 relative sm:py-6 px-4 sm:px-8">
               <div className="absolute top-0 left-0 sm:-top-4 sm:-left-4 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
                 <span className="text-2xl sm:text-3xl">📝</span>
               </div>
