@@ -11,7 +11,6 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
-
   },
   "dependencies": {
     "@radix-ui/react-menubar": "^1.1.15",
@@ -19,6 +18,7 @@
     "@radix-ui/react-tabs": "^1.1.12",
     "@react-pdf/renderer": "^4.3.0",
     "@tailwindcss/vite": "^4.1.7",
+    "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.15.0",

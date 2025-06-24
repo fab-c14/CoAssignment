@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { 
   FiUser, 
   FiHash, 
@@ -9,7 +10,9 @@ import {
   FiTerminal, 
   FiPlusCircle, 
   FiArrowRight,
-  FiZap  // Added AI icon
+  FiZap,
+  FiAlertCircle,
+  FiCheckCircle
 } from 'react-icons/fi';
 
 export const AssignmentForm = ({
@@ -36,8 +39,13 @@ export const AssignmentForm = ({
     output: false
   });
   
-  // Added state for toast notification
-  const [showToast, setShowToast] = useState(false);
+  const [toast, setToast] = useState({ 
+    show: false, 
+    message: '', 
+    type: '' 
+  });
+  
+  const [isAILoading, setIsAILoading] = useState(false);
 
   const handleFocus = (field) => {
     setIsFocused(prev => ({ ...prev, [field]: true }));
@@ -47,29 +55,81 @@ export const AssignmentForm = ({
     setIsFocused(prev => ({ ...prev, [field]: false }));
   };
 
-  // Added function to show AI toast
-  const handleAIClick = () => {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000); // Auto-hide after 3 seconds
+  const showToast = (message, type = 'info') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
   };
+
+const handleAIClick = async () => {
+  if (!question.trim()) {
+    showToast('Please enter a question first', 'error');
+    return;
+  }
+
+  try {
+    setIsAILoading(true);
+    showToast('Generating solution with AI...', 'info');
+
+    const response = await axios.post('https://co-assignmentbackend.onrender.com/api/getai', {
+      message: question
+    });
+
+    let aiResponse = response.data.resp;
+    
+    // Handle Markdown-formatted JSON responses
+    if (aiResponse.startsWith('```json')) {
+      // Extract JSON from Markdown code block
+      aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+    }
+    
+    try {
+      const aiData = JSON.parse(aiResponse);
+      
+      if (aiData.code && aiData.output) {
+        setCode(aiData.code);
+        setOutput(aiData.output);
+        showToast('AI solution generated!', 'success');
+      } else {
+        throw new Error('Invalid AI response format');
+      }
+    } catch (parseError) {
+      console.error('Error parsing AI response:', parseError);
+      showToast('Failed to parse AI response', 'error');
+    }
+  } catch (error) {
+    console.error('AI request failed:', error);
+    showToast('AI request failed. Please try again.', 'error');
+  } finally {
+    setIsAILoading(false);
+  }
+};
 
   const isFormValid = question && code && output;
 
   return (
     <div className="min-h-screen bg-gradient-to-br  from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
-      {/* Toast notification for AI feature */}
       <AnimatePresence>
-        {showToast && (
+        {toast.show && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-4 py-3 rounded-lg shadow-lg z-50"
+            className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+              toast.type === 'error' 
+                ? 'bg-red-600 text-white' 
+                : toast.type === 'success' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-indigo-600 text-white'
+            }`}
           >
-            <div className="flex items-center gap-2">
+            {toast.type === 'error' ? (
+              <FiAlertCircle className="text-yellow-300" />
+            ) : toast.type === 'success' ? (
+              <FiCheckCircle className="text-green-300" />
+            ) : (
               <FiZap className="text-yellow-300" />
-              <span>Solution with AI will be available in the upcoming update!</span>
-            </div>
+            )}
+            <span>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -205,7 +265,6 @@ export const AssignmentForm = ({
                 </div>
               </motion.div>
               
-              {/* Title Field */}
               <motion.div 
                 className="relative"
                 initial={{ opacity: 0, y: 10 }}
@@ -300,13 +359,22 @@ export const AssignmentForm = ({
                     onBlur={() => handleBlur('code')}
                   />
                 </div>
-                {/* Added AI button here */}
                 <button 
                   onClick={handleAIClick}
-                  className="absolute top-4 right-4 flex items-center gap-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-lg text-xs hover:opacity-90 transition-opacity"
+                  disabled={isAILoading}
+                  className="absolute top-4 right-4 flex items-center gap-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1.5 rounded-lg text-xs hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  <FiZap className="text-yellow-200" />
-                  <span>AI</span>
+                  {isAILoading ? (
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <>
+                      <FiZap className="text-yellow-200" />
+                      <span>AI</span>
+                    </>
+                  )}
                 </button>
                 <div className="text-xs text-gray-500 mt-2 flex justify-between">
                   <span>Use proper indentation for readability</span>
