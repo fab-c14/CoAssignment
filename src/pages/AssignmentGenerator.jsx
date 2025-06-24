@@ -32,12 +32,12 @@ export default function AssignmentGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 py-12 px-4 md:px-8 lg:px-16">
-      <div className="max-w-5xl mx-auto space-y-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 sm:py-12  sm:px-4 md:px-8 lg:px-16">
+      <div className="sm:max-w-5xl mx-auto space-y-12">
        
 
         {/* Form Section */}
-        <section className="bg-white border border-gray-200 shadow-lg rounded-2xl  transition-all space-y-6">
+        <section className="bg-white sm:border border-gray-200 shadow-lg rounded-2xl  transition-all space-y-6">
           <AssignmentForm
             userName={userName}
             setUserName={setUserName}

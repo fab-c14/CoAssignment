@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { 
   FiUser, 
@@ -60,143 +59,89 @@ export const AssignmentForm = ({
     setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
   };
 
-const handleAIClick = async () => {
-  if (!question.trim()) {
-    showToast('Please enter a question first', 'error');
-    return;
-  }
-
-  try {
-    setIsAILoading(true);
-    showToast('Generating solution with AI...', 'info');
-
-    const response = await axios.post('https://co-assignmentbackend.onrender.com/api/getai', {
-      message: question
-    });
-
-    let aiResponse = response.data.resp;
-    
-    // Handle Markdown-formatted JSON responses
-    if (aiResponse.startsWith('```json')) {
-      // Extract JSON from Markdown code block
-      aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+  const handleAIClick = async () => {
+    if (!question.trim()) {
+      showToast('Please enter a question first', 'error');
+      return;
     }
-    
+
     try {
-      const aiData = JSON.parse(aiResponse);
+      setIsAILoading(true);
+      showToast('Generating solution with AI...', 'info');
+
+      const response = await axios.post('https://co-assignmentbackend.onrender.com/api/getai', {
+        message: question
+      });
+
+      let aiResponse = response.data.resp;
       
-      if (aiData.code && aiData.output) {
-        setCode(aiData.code);
-        setOutput(aiData.output);
-        showToast('AI solution generated!', 'success');
-      } else {
-        throw new Error('Invalid AI response format');
+      if (aiResponse.startsWith('```json')) {
+        aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
       }
-    } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
-      showToast('Failed to parse AI response', 'error');
+      
+      try {
+        const aiData = JSON.parse(aiResponse);
+        
+        if (aiData.code && aiData.output) {
+          setCode(aiData.code);
+          setOutput(aiData.output);
+          showToast('AI solution generated!', 'success');
+        } else {
+          throw new Error('Invalid AI response format');
+        }
+      } catch (parseError) {
+        console.error('Error parsing AI response:', parseError);
+        showToast('Failed to parse AI response', 'error');
+      }
+    } catch (error) {
+      console.error('AI request failed:', error);
+      showToast('AI request failed. Please try again.', 'error');
+    } finally {
+      setIsAILoading(false);
     }
-  } catch (error) {
-    console.error('AI request failed:', error);
-    showToast('AI request failed. Please try again.', 'error');
-  } finally {
-    setIsAILoading(false);
-  }
-};
+  };
 
   const isFormValid = question && code && output;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br  from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
-      <AnimatePresence>
-        {toast.show && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 ${
-              toast.type === 'error' 
-                ? 'bg-red-600 text-white' 
-                : toast.type === 'success' 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-indigo-600 text-white'
-            }`}
-          >
-            {toast.type === 'error' ? (
-              <FiAlertCircle className="text-yellow-300" />
-            ) : toast.type === 'success' ? (
-              <FiCheckCircle className="text-green-300" />
-            ) : (
-              <FiZap className="text-yellow-300" />
-            )}
-            <span>{toast.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center p-4 font-sans">
+      {toast.show && (
+        <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 ${
+          toast.type === 'error' 
+            ? 'bg-red-600 text-white' 
+            : toast.type === 'success' 
+              ? 'bg-green-600 text-white' 
+              : 'bg-indigo-600 text-white'
+        }`}>
+          {toast.type === 'error' ? (
+            <FiAlertCircle className="text-yellow-300" />
+          ) : toast.type === 'success' ? (
+            <FiCheckCircle className="text-green-300" />
+          ) : (
+            <FiZap className="text-yellow-300" />
+          )}
+          <span>{toast.message}</span>
+        </div>
+      )}
 
-      <motion.div
-        className="absolute top-10 left-5 w-40 h-40 sm:top-20 sm:left-10 sm:w-64 sm:h-64 rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-600/10 blur-3xl"
-        animate={{
-          scale: [1, 1.05, 1],
-          opacity: [0.7, 0.9, 0.7]
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          repeatType: "reverse"
-        }}
-      />
+      <div className="absolute top-10 left-5 w-40 h-40 sm:top-20 sm:left-10 sm:w-64 sm:h-64 rounded-full bg-gradient-to-r from-purple-500/10 to-indigo-600/10 blur-3xl" />
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-4xl z-10"
-      >
+      <div className="w-full max-w-4xl z-10">
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-700/50 shadow-2xl overflow-hidden">
           <div className="relative p-1 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-              style={{
-                backgroundSize: "300% 300%"
-              }}
-            />
             <div className="bg-gradient-to-r from-gray-900 to-gray-800 relative py-4 px-4 sm:py-6 sm:px-8">
               <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-                <motion.div
-                  initial={{ rotate: -20, scale: 0 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                  className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg"
-                >
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
                   <FiEdit className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </motion.div>
+                </div>
                 
                 <div className="text-center sm:text-left">
-                  <motion.h1 
-                    className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-400"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                  >
+                  <h1 className="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-400">
                     Assignment Generator
-                  </motion.h1>
-                  <motion.p 
-                    className="text-gray-400 text-xs sm:text-sm"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
+                  </h1>
+                  <p className="text-gray-400 text-xs sm:text-sm">
                     Create professional assignments with code and output
-                  </motion.p>
+                  </p>
                 </div>
               </div>
             </div>
@@ -204,12 +149,7 @@ const handleAIClick = async () => {
 
           <div className="p-4 sm:p-6 md:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
-              <motion.div 
-                className="relative"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
+              <div className="relative">
                 <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
                   isFocused.userName || userName 
                     ? 'text-cyan-400 opacity-100' 
@@ -233,13 +173,8 @@ const handleAIClick = async () => {
                     onBlur={() => handleBlur('userName')}
                   />
                 </div>
-              </motion.div>
-              <motion.div 
-                className="relative"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
+              </div>
+              <div className="relative">
                 <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
                   isFocused.rollNo || rollNo 
                     ? 'text-cyan-400 opacity-100' 
@@ -263,14 +198,9 @@ const handleAIClick = async () => {
                     onBlur={() => handleBlur('rollNo')}
                   />
                 </div>
-              </motion.div>
+              </div>
               
-              <motion.div 
-                className="relative"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
+              <div className="relative">
                 <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
                   isFocused.pdfTitle || pdfTitle 
                     ? 'text-cyan-400 opacity-100' 
@@ -294,14 +224,9 @@ const handleAIClick = async () => {
                     onBlur={() => handleBlur('pdfTitle')}
                   />
                 </div>
-              </motion.div>
+              </div>
             </div>
-            <motion.div 
-              className="mb-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
+            <div className="mb-6">
               <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
                 isFocused.question || question 
                   ? 'text-purple-400 opacity-100 z-10' 
@@ -329,13 +254,8 @@ const handleAIClick = async () => {
                   {question.length} characters
                 </div>
               </div>
-            </motion.div>
-            <motion.div 
-              className="mb-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-            >
+            </div>
+            <div className="mb-6">
               <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
                 isFocused.code || code 
                   ? 'text-blue-400 opacity-100 z-10' 
@@ -381,14 +301,9 @@ const handleAIClick = async () => {
                   <span>{code.split('\n').length} lines</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
       
-            <motion.div 
-              className="mb-8"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
+            <div className="mb-8">
               <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
                 isFocused.output || output 
                   ? 'text-green-400 opacity-100 z-10' 
@@ -416,15 +331,9 @@ const handleAIClick = async () => {
                   {output.length} characters
                 </div>
               </div>
-            </motion.div>
+            </div>
             
-        
-            <motion.div 
-              className="mb-6 md:hidden bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-xl p-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 }}
-            >
+            <div className="mb-6 md:hidden bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <div className="bg-indigo-500/10 p-2 rounded-lg">
                   <FiArrowRight className="text-indigo-400" />
@@ -436,83 +345,37 @@ const handleAIClick = async () => {
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
  
-            <motion.div
-              className="flex justify-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-            >
-              <motion.button
+            <div className="flex justify-center">
+              <button
                 onClick={handleAddEntry}
                 disabled={!isFormValid}
                 className={`
                   relative flex items-center justify-center gap-3 px-6 py-3 sm:px-8 sm:py-4 rounded-xl
-                  font-medium text-base sm:text-lg overflow-hidden w-full max-w-md
+                  font-medium text-base sm:text-lg overflow-hidden w-full max-md
                   ${isFormValid 
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white cursor-pointer' 
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white cursor-pointer hover:opacity-90' 
                     : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                  }
+                  } transition-all duration-200
                 `}
-                whileHover={isFormValid ? { 
-                  background: [
-                    'linear-gradient(90deg, #3b82f6, #8b5cf6)',
-                    'linear-gradient(90deg, #8b5cf6, #ec4899)',
-                    'linear-gradient(90deg, #ec4899, #f97316)',
-                    'linear-gradient(90deg, #f97316, #3b82f6)',
-                    'linear-gradient(90deg, #3b82f6, #8b5cf6)'
-                  ] 
-                } : {}}
-                animate={isFormValid ? {
-                  backgroundSize: ["300% 300%"],
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                } : {}}
-                transition={isFormValid ? {
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear",
-                  backgroundSize: { duration: 4, repeat: Infinity, ease: "linear" }
-                } : {}}
-                whileTap={isFormValid ? { scale: 0.97 } : {}}
               >
                 {isFormValid && (
-                  <motion.span
-                    animate={{ rotate: [0, 15, 0, -15, 0] }}
-                    transition={{ 
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatType: "loop"
-                    }}
-                  >
+                  <span>
                     <FiPlusCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </motion.span>
+                  </span>
                 )}
                 <span>Add to Assignment</span>
                 
                 {isFormValid && (
-                  <motion.span
-                    className="ml-auto"
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ 
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatType: "loop"
-                    }}
-                  >
+                  <span className="ml-auto">
                     <FiArrowRight />
-                  </motion.span>
+                  </span>
                 )}
-              </motion.button>
-            </motion.div>
+              </button>
+            </div>
             
-    
-            <motion.div 
-              className="mt-6 pt-6 border-t border-gray-700/50 text-center text-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
+            <div className="mt-6 pt-6 border-t border-gray-700/50 text-center text-sm">
               <div className="flex flex-wrap justify-center gap-3 sm:gap-4 text-gray-400">
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 rounded-full ${userName ? 'bg-green-500' : 'bg-gray-600'}`}></div>
@@ -527,17 +390,12 @@ const handleAIClick = async () => {
                   <span className="text-xs sm:text-sm">Title {pdfTitle ? 'provided' : 'missing'}</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     
-      <motion.div 
-        className="hidden md:flex absolute bottom-6 right-6 bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-xl p-4 max-w-xs"
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.2 }}
-      >
+      <div className="hidden md:flex absolute bottom-6 right-6 bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-xl p-4 max-w-xs">
         <div className="flex items-start gap-3">
           <div className="bg-indigo-500/10 p-2 rounded-lg">
             <FiArrowRight className="text-indigo-400" />
@@ -549,7 +407,7 @@ const handleAIClick = async () => {
             </p>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
