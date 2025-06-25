@@ -11,7 +11,8 @@ import {
   FiArrowRight,
   FiZap,
   FiAlertCircle,
-  FiCheckCircle
+  FiCheckCircle,
+  FiGlobe  // Added for language dropdown
 } from 'react-icons/fi';
 
 export const AssignmentForm = ({
@@ -28,6 +29,8 @@ export const AssignmentForm = ({
   output,
   setOutput,
   handleAddEntry,
+  language,         // New prop for language
+  setLanguage       // New prop for setting language
 }) => {
   const [isFocused, setIsFocused] = useState({
     userName: false,
@@ -59,9 +62,25 @@ export const AssignmentForm = ({
     setTimeout(() => setToast({ show: false, message: '', type: '' }), 3000);
   };
 
+  const languages = [
+    { value: 'cpp', label: 'C++' },
+    { value: 'python', label: 'Python' },
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'java', label: 'Java' },
+    { value: 'c', label: 'C' },
+    { value: 'php', label: 'PHP' },
+    { value: 'typescript', label: 'TypeScript' },
+   
+  ];
+
   const handleAIClick = async () => {
     if (!question.trim()) {
       showToast('Please enter a question first', 'error');
+      return;
+    }
+
+    if (!language) {
+      showToast('Please select a programming language', 'error');
       return;
     }
 
@@ -70,7 +89,8 @@ export const AssignmentForm = ({
       showToast('Generating solution with AI...', 'info');
 
       const response = await axios.post('https://co-assignmentbackend.onrender.com/api/getai', {
-        message: question
+        message: question,
+        language: language  
       });
 
       let aiResponse = response.data.resp;
@@ -226,6 +246,43 @@ export const AssignmentForm = ({
                 </div>
               </div>
             </div>
+           
+            <div className="mb-6">
+              <div className="relative">
+                <div className={`absolute -top-2 left-4 px-2 text-xs bg-gray-800 transition-all ${
+                  language ? 'text-purple-400 opacity-100' : 'text-gray-500 opacity-0 top-3'
+                }`}>
+                  Programming Language
+                </div>
+                <div className={`flex items-center border rounded-xl px-4 py-3 transition-all ${
+                  language ? 'border-purple-400 shadow-[0_0_0_3px_rgba(192,132,252,0.1)]' : 'border-gray-700'
+                }`}>
+                  <FiGlobe className="text-gray-500 mr-2" />
+                  <select
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                    className="w-full bg-transparent text-gray-200 focus:outline-none appearance-none"
+                  >
+                    <option value="" disabled>Select Language</option>
+                    {languages.map((lang) => (
+                      <option 
+                        key={lang.value} 
+                        value={lang.value}
+                        className="bg-gray-800 text-gray-200"
+                      >
+                        {lang.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute right-4">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             <div className="mb-6">
               <div className={`relative border rounded-xl p-4 transition-all ${
                 isFocused.question 
@@ -368,13 +425,15 @@ export const AssignmentForm = ({
                   <div className={`w-3 h-3 rounded-full ${pdfTitle ? 'bg-green-500' : 'bg-gray-600'}`}></div>
                   <span className="text-xs sm:text-sm">Title {pdfTitle ? 'provided' : 'missing'}</span>
                 </div>
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${language ? 'bg-green-500' : 'bg-gray-600'}`}></div>
+                  <span className="text-xs sm:text-sm">Language {language ? 'selected' : 'missing'}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    
-    
     </div>
   );
 };
