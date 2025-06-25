@@ -12,13 +12,15 @@ export default function AssignmentGenerator() {
   const [question, setQuestion] = useState("");
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
+  const [language, setLanguage] = useState("");
 
   const handleAddEntry = () => {
     if (question && code && output) {
-      setEntries((prev) => [...prev, { question, code, output }]);
+      setEntries((prev) => [...prev, { question, code, output, language }]);
       setQuestion("");
       setCode("");
       setOutput("");
+      setLanguage("");
     }
   };
 
@@ -36,7 +38,6 @@ export default function AssignmentGenerator() {
       <div className="sm:max-w-5xl mx-auto space-y-12">
        
 
-        {/* Form Section */}
         <section className="bg-white sm:border border-gray-200 shadow-lg rounded-2xl  transition-all space-y-6">
           <AssignmentForm
             userName={userName}
@@ -52,10 +53,11 @@ export default function AssignmentGenerator() {
             output={output}
             setOutput={setOutput}
             handleAddEntry={handleAddEntry}
+            language={language}
+            setLanguage={setLanguage}
           />
         </section>
 
-        {/* Preview Section */}
         <section className="bg-white border border-gray-200 shadow-xl rounded-2xl p-3 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-gray-800">

@@ -12,7 +12,7 @@ import {
   FiZap,
   FiAlertCircle,
   FiCheckCircle,
-  FiGlobe  // Added for language dropdown
+  FiGlobe 
 } from 'react-icons/fi';
 
 export const AssignmentForm = ({
@@ -29,8 +29,8 @@ export const AssignmentForm = ({
   output,
   setOutput,
   handleAddEntry,
-  language,         // New prop for language
-  setLanguage       // New prop for setting language
+  language,        
+  setLanguage    
 }) => {
   const [isFocused, setIsFocused] = useState({
     userName: false,
@@ -70,7 +70,6 @@ export const AssignmentForm = ({
     { value: 'c', label: 'C' },
     { value: 'php', label: 'PHP' },
     { value: 'typescript', label: 'TypeScript' },
-   
   ];
 
   const handleAIClick = async () => {
@@ -78,6 +77,7 @@ export const AssignmentForm = ({
       showToast('Please enter a question first', 'error');
       return;
     }
+
 
     if (!language) {
       showToast('Please select a programming language', 'error');
