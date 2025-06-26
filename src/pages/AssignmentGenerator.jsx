@@ -20,7 +20,6 @@ export default function AssignmentGenerator() {
       setQuestion("");
       setCode("");
       setOutput("");
-      setLanguage("");
     }
   };
 
@@ -36,8 +35,6 @@ export default function AssignmentGenerator() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 sm:py-12  sm:px-4 md:px-8 lg:px-16">
       <div className="sm:max-w-5xl mx-auto space-y-12">
-       
-
         <section className="bg-white sm:border border-gray-200 shadow-lg rounded-2xl  transition-all space-y-6">
           <AssignmentForm
             userName={userName}

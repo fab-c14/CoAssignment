@@ -78,7 +78,6 @@ export const AssignmentForm = ({
       return;
     }
 
-
     if (!language) {
       showToast('Please select a programming language', 'error');
       return;
