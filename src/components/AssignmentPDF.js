@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 
-// Adds page number at bottom
+// Page number footer
 function addPageNumber(doc, pageWidth, pageHeight) {
   const pageCount = doc.internal.getNumberOfPages();
   doc.setFontSize(10);
@@ -8,7 +8,7 @@ function addPageNumber(doc, pageWidth, pageHeight) {
   doc.text(`Page ${pageCount}`, pageWidth / 2, pageHeight - 20, { align: "center" });
 }
 
-// Code block rendering that safely wraps across pages
+// Code block with wrapping + page breaks
 function printCodeBlock(doc, lines, x, y, lineHeight, pageWidth, pageHeight, margin) {
   const boxPadding = 10;
   const boxMarginTop = 10;
@@ -21,11 +21,15 @@ function printCodeBlock(doc, lines, x, y, lineHeight, pageWidth, pageHeight, mar
     doc.roundedRect(x - boxPadding, startY - boxPadding, pageWidth - x * 2 + 2 * boxPadding, blockHeight, 6, 6, "F");
 
     doc.setTextColor(30, 30, 30);
-    doc.setFont("courier", "normal");
-    doc.setFontSize(11);
+    doc.setFont("courier", "normal"); 
+    doc.setFontSize(11);              
+
 
     boxLines.forEach((line, i) => {
-      doc.text(line, x + 5, startY + i * lineHeight);
+      const wrapped = doc.splitTextToSize(line, pageWidth - 2 * margin - 40);
+      wrapped.forEach((wrapLine, j) => {
+        doc.text(wrapLine, x + 5, startY + i * lineHeight + j * lineHeight);
+      });
     });
 
     y = startY + boxLines.length * lineHeight + boxPadding;
@@ -48,7 +52,7 @@ function printCodeBlock(doc, lines, x, y, lineHeight, pageWidth, pageHeight, mar
   return y + 10;
 }
 
-// Adds a new page if the upcoming block won't fit
+// Page break check
 function addPageIfNeeded(doc, y, blockHeight, pageHeight, margin, pageWidth) {
   if (y + blockHeight > pageHeight - margin) {
     doc.addPage();
@@ -67,7 +71,7 @@ export function generateAssignmentPDF({ pdfTitle, userName, rollNo, entries }) {
   const pageHeight = doc.internal.pageSize.getHeight();
   let y = 0;
 
-  // Banner Header
+  // Header
   const headerHeight = 100;
   doc.setFillColor(37, 99, 235);
   doc.rect(0, 0, pageWidth, headerHeight, "F");
@@ -86,7 +90,6 @@ export function generateAssignmentPDF({ pdfTitle, userName, rollNo, entries }) {
   y = headerHeight + 30;
 
   entries.forEach((entry, idx) => {
-    // QUESTION BLOCK
     const questionLines = doc.splitTextToSize(`Q${idx + 1}: ${entry.question}`, pageWidth - margin * 2);
     const questionHeight = questionLines.length * lineHeight + 20;
     y = addPageIfNeeded(doc, y, questionHeight, pageHeight, margin, pageWidth);
@@ -100,42 +103,73 @@ export function generateAssignmentPDF({ pdfTitle, userName, rollNo, entries }) {
     doc.text(questionLines, margin + 5, y + lineHeight - 2);
     y += questionHeight + 10;
 
-    // CODE BLOCK
     const codeLines = doc.splitTextToSize(entry.code, pageWidth - margin * 2 - 20);
     y = printCodeBlock(doc, codeLines, margin + 10, y, lineHeight, pageWidth, pageHeight, margin);
 
-    // OUTPUT BLOCK: ensure "Output:" and box appear together
+    // Output label
     const outputLines = doc.splitTextToSize(entry.output, pageWidth - margin * 2 - 40);
     const outputLabelHeight = lineHeight * 2;
-    const outputHeight = outputLines.length * lineHeight + 20;
-    const totalOutputBlockHeight = outputLabelHeight + outputHeight;
-
-    y = addPageIfNeeded(doc, y, totalOutputBlockHeight, pageHeight, margin, pageWidth);
-
-    // Output Label
+    y = addPageIfNeeded(doc, y, outputLabelHeight, pageHeight, margin, pageWidth);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(22, 163, 74);
     doc.text("Output:", margin + 10, y + lineHeight);
     y += outputLabelHeight;
 
-    // Output Box
-    doc.setFillColor(240, 253, 244);
-    doc.setDrawColor(34, 197, 94);
-    doc.roundedRect(margin + 10, y, pageWidth - margin * 2 - 20, outputHeight, 6, 6, "FD");
+    // Output block with page-safe wrapping
+    let outputStartY = y;
+    let outputBoxLines = [];
 
-    doc.setTextColor(20, 30, 40);
-    doc.setFont("courier", "normal");
-    doc.setFontSize(11);
-    outputLines.forEach((line, i) => {
-      doc.text(line, margin + 20, y + lineHeight + i * lineHeight);
-    });
+    const flushOutputBox = () => {
+      const blockHeight = outputBoxLines.length * lineHeight + 20;
 
-    y += outputHeight + 30;
+      doc.setFillColor(255, 255, 255);  // pure white background
+      doc.setDrawColor(0, 0, 0);        // black border
+      doc.roundedRect(margin + 10, outputStartY, pageWidth - margin * 2 - 20, blockHeight, 6, 6, "FD");
+
+      doc.setTextColor(0, 0, 0);        // pure black text
+      doc.setFont("courier", "normal");
+      doc.setFontSize(11);
+
+
+      outputBoxLines.forEach((line, i) => {
+        const wrap = doc.splitTextToSize(line, pageWidth - margin * 2 - 60);
+        wrap.forEach((wrappedLine, j) => {
+          doc.text(wrappedLine, margin + 20, outputStartY + lineHeight + (i + j) * lineHeight);
+        });
+      });
+
+      y = outputStartY + blockHeight + 10;
+      outputBoxLines = [];
+      outputStartY = y;
+    };
+
+    for (let i = 0; i < outputLines.length; i++) {
+      const blockHeight = outputBoxLines.length * lineHeight + 20;
+      if (outputStartY + blockHeight + lineHeight > pageHeight - margin) {
+        if (outputBoxLines.length > 0) flushOutputBox();
+        doc.addPage();
+        addPageNumber(doc, pageWidth, pageHeight);
+        outputStartY = margin;
+      }
+      outputBoxLines.push(outputLines[i]);
+    }
+
+    if (outputBoxLines.length > 0) flushOutputBox();
+
+    y += 20;
   });
 
-  // Final page number
+  // Final page number + footer
   addPageNumber(doc, pageWidth, pageHeight);
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(10);
+  doc.setTextColor(150);
+  doc.setDrawColor(200);
+  doc.setGState(new doc.GState({ opacity: 0.5 }));
+
+  doc.text("Created With fab-c14 and hazimbhatt's coassignment", margin, pageHeight - 40);
 
   doc.save(`${pdfTitle || "assignment"}.pdf`);
 }
