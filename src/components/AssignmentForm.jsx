@@ -273,6 +273,11 @@ export const AssignmentForm = ({
                   <FiUser className="text-gray-500 mr-2" />
                   <input
                     type="text"
+                    id="userName"
+                    name="userName"
+                    aria-label="Your Name"
+                    aria-required="true"
+                    aria-describedby="userName-hint"
                     className="w-full bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none"
                     placeholder="Your Name"
                     value={userName}
@@ -301,6 +306,11 @@ export const AssignmentForm = ({
                   <FiHash className="text-gray-500 mr-2" />
                   <input
                     type="text"
+                    id="rollNo"
+                    name="rollNo"
+                    aria-label="Roll Number"
+                    aria-required="true"
+                    aria-describedby="rollNo-hint"
                     className="w-full bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none"
                     placeholder="Roll Number"
                     value={rollNo}
@@ -330,6 +340,11 @@ export const AssignmentForm = ({
                   <FiBook className="text-gray-500 mr-2" />
                   <input
                     type="text"
+                    id="pdfTitle"
+                    name="pdfTitle"
+                    aria-label="Assignment Title"
+                    aria-required="true"
+                    aria-describedby="pdfTitle-hint"
                     className="w-full bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none"
                     placeholder="Assignment Title"
                     value={pdfTitle}
