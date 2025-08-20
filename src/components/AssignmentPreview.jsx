@@ -235,7 +235,7 @@ export function AssignmentPreview({
                               <FiCode className="text-blue-400 flex-shrink-0" />
                               <h3 className="font-bold text-sm sm:text-base">Code Solution</h3>
                             </div>
-                            <pre className="bg-gray-900/60 rounded-lg p-3 sm:p-4 text-gray-200 font-mono text-xs sm:text-sm overflow-x-auto mt-2 border border-gray-700">
+                            <pre className="bg-gray-900/60 rounded-lg p-3 sm:p-4 text-gray-200 font-mono text-xs sm:text-sm overflow-x-auto mt-2 border border-gray-700" style={{whiteSpace: 'pre-wrap'}}>
                               {entry.code}
                             </pre>
                           </div>
