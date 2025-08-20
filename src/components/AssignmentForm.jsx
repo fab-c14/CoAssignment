@@ -49,6 +49,55 @@ export const AssignmentForm = ({
   
   const [isAILoading, setIsAILoading] = useState(false);
 
+  // Input validation and sanitization functions
+  const validateAndSanitizeInput = (value, maxLength = 1000) => {
+    if (!value) return { isValid: true, sanitized: '' };
+    
+    // Basic XSS prevention - remove script tags and dangerous HTML
+    const sanitized = value
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .trim();
+    
+    const isValid = sanitized.length <= maxLength;
+    
+    return { isValid, sanitized, length: sanitized.length };
+  };
+
+  const validateName = (name) => {
+    const { isValid, sanitized } = validateAndSanitizeInput(name, 50);
+    const hasValidChars = /^[a-zA-Z\s\-'.]*$/.test(sanitized);
+    return { isValid: isValid && hasValidChars && sanitized.length >= 2, sanitized };
+  };
+
+  const validateRollNo = (rollNo) => {
+    const { isValid, sanitized } = validateAndSanitizeInput(rollNo, 20);
+    const hasValidChars = /^[a-zA-Z0-9\-]*$/.test(sanitized);
+    return { isValid: isValid && hasValidChars && sanitized.length >= 1, sanitized };
+  };
+
+  const validateTitle = (title) => {
+    const { isValid, sanitized } = validateAndSanitizeInput(title, 100);
+    return { isValid: isValid && sanitized.length >= 3, sanitized };
+  };
+
+  const validateQuestion = (question) => {
+    const { isValid, sanitized } = validateAndSanitizeInput(question, 2000);
+    return { isValid: isValid && sanitized.length >= 10, sanitized };
+  };
+
+  const validateCode = (code) => {
+    const { isValid, sanitized } = validateAndSanitizeInput(code, 5000);
+    return { isValid: isValid && sanitized.length >= 5, sanitized };
+  };
+
+  const validateOutput = (output) => {
+    const { isValid, sanitized } = validateAndSanitizeInput(output, 1000);
+    return { isValid: isValid && sanitized.length >= 1, sanitized };
+  };
+
   const handleFocus = (field) => {
     setIsFocused(prev => ({ ...prev, [field]: true }));
   };
@@ -87,13 +136,31 @@ export const AssignmentForm = ({
       setIsAILoading(true);
       showToast('Generating solution with AI...', 'info');
 
+      // Add timeout and better error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await axios.post('https://co-assignmentbackend.onrender.com/api/getai', {
         message: question,
         language: language  
+      }, {
+        signal: controller.signal,
+        timeout: 30000,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       });
+
+      clearTimeout(timeoutId);
+
+      if (!response.data || !response.data.resp) {
+        throw new Error('Invalid response from AI service');
+      }
 
       let aiResponse = response.data.resp;
       
+      // Clean up response format
       if (aiResponse.startsWith('```json')) {
         aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
       }
@@ -106,21 +173,43 @@ export const AssignmentForm = ({
           setOutput(aiData.output);
           showToast('AI solution generated!', 'success');
         } else {
-          throw new Error('Invalid AI response format');
+          throw new Error('AI response missing required fields (code or output)');
         }
       } catch (parseError) {
         console.error('Error parsing AI response:', parseError);
-        showToast('Failed to parse AI response', 'error');
+        console.log('Raw AI response:', aiResponse);
+        showToast('Failed to parse AI response. Please try again or enter code manually.', 'error');
       }
     } catch (error) {
       console.error('AI request failed:', error);
-      showToast('AI request failed. Please try again.', 'error');
+      
+      // Provide more specific error messages
+      if (error.name === 'AbortError') {
+        showToast('AI request timed out. Please try again or enter code manually.', 'error');
+      } else if (error.code === 'NETWORK_ERROR' || error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
+        showToast('AI service unavailable. Please enter code manually.', 'error');
+      } else if (error.response?.status === 429) {
+        showToast('AI service rate limit exceeded. Please try again later.', 'error');
+      } else if (error.response?.status >= 500) {
+        showToast('AI service temporarily unavailable. Please try again later.', 'error');
+      } else {
+        showToast('AI request failed. Please enter code manually or try again.', 'error');
+      }
     } finally {
       setIsAILoading(false);
     }
   };
 
-  const isFormValid = question && code && output;
+  const isFormValid = (() => {
+    const nameValid = validateName(userName).isValid;
+    const rollValid = validateRollNo(rollNo).isValid;
+    const titleValid = validateTitle(pdfTitle).isValid;
+    const questionValid = validateQuestion(question).isValid;
+    const codeValid = validateCode(code).isValid;
+    const outputValid = validateOutput(output).isValid;
+    
+    return nameValid && rollValid && titleValid && questionValid && codeValid && outputValid && language;
+  })();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-indigo-950 flex items-center justify-center sm:p-4 font-sans">
@@ -187,7 +276,10 @@ export const AssignmentForm = ({
                     className="w-full bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none"
                     placeholder="Your Name"
                     value={userName}
-                    onChange={e => setUserName(e.target.value)}
+                    onChange={e => {
+                      const { sanitized } = validateName(e.target.value);
+                      setUserName(sanitized);
+                    }}
                     onFocus={() => handleFocus('userName')}
                     onBlur={() => handleBlur('userName')}
                   />
@@ -212,7 +304,10 @@ export const AssignmentForm = ({
                     className="w-full bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none"
                     placeholder="Roll Number"
                     value={rollNo}
-                    onChange={e => setRollNo(e.target.value)}
+                    onChange={e => {
+                      const { sanitized } = validateRollNo(e.target.value);
+                      setRollNo(sanitized);
+                    }}
                     onFocus={() => handleFocus('rollNo')}
                     onBlur={() => handleBlur('rollNo')}
                   />
@@ -238,7 +333,10 @@ export const AssignmentForm = ({
                     className="w-full bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none"
                     placeholder="Assignment Title"
                     value={pdfTitle}
-                    onChange={e => setPdfTitle(e.target.value)}
+                    onChange={e => {
+                      const { sanitized } = validateTitle(e.target.value);
+                      setPdfTitle(sanitized);
+                    }}
                     onFocus={() => handleFocus('pdfTitle')}
                     onBlur={() => handleBlur('pdfTitle')}
                   />
@@ -294,7 +392,10 @@ export const AssignmentForm = ({
                     className="w-full min-h-[100px] sm:min-h-[120px] bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none resize-none"
                     placeholder="Enter the question/problem statement"
                     value={question}
-                    onChange={e => setQuestion(e.target.value)}
+                    onChange={e => {
+                      const { sanitized } = validateQuestion(e.target.value);
+                      setQuestion(sanitized);
+                    }}
                     onFocus={() => handleFocus('question')}
                     onBlur={() => handleBlur('question')}
                   />
@@ -316,7 +417,10 @@ export const AssignmentForm = ({
                     className="w-full min-h-[150px] sm:min-h-[180px] bg-gray-900/50 font-mono text-sm text-gray-200 placeholder-gray-600 focus:outline-none resize-none rounded-lg p-3"
                     placeholder="Paste your code here"
                     value={code}
-                    onChange={e => setCode(e.target.value)}
+                    onChange={e => {
+                      const { sanitized } = validateCode(e.target.value);
+                      setCode(sanitized);
+                    }}
                     onFocus={() => handleFocus('code')}
                     onBlur={() => handleBlur('code')}
                   />
@@ -357,7 +461,10 @@ export const AssignmentForm = ({
                     className="w-full min-h-[80px] sm:min-h-[100px] bg-transparent text-gray-200 placeholder-gray-600 focus:outline-none resize-none"
                     placeholder="Enter the output"
                     value={output}
-                    onChange={e => setOutput(e.target.value)}
+                    onChange={e => {
+                      const { sanitized } = validateOutput(e.target.value);
+                      setOutput(sanitized);
+                    }}
                     onFocus={() => handleFocus('output')}
                     onBlur={() => handleBlur('output')}
                   />
